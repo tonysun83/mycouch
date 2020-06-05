@@ -39,16 +39,29 @@ namespace IntegrationTests
 
         internal static IMyCouchClient CreateDbClient()
         {
-            return CreateDbClient(Environment.PrimaryDbName);
+            return CreateDbClient(Environment.PrimaryDbName, null);
         }
 
-        private static IMyCouchClient CreateDbClient(string dbName)
+        internal static IMyCouchClient CreateDbClient(CookieContainer cookieC)
+        {
+            return CreateDbClient(Environment.PrimaryDbName, cookieC);
+        }
+
+        internal static IMyCouchClient CreateDbClient(string dbName)
+        {
+            return CreateDbClient(dbName, null);
+        }
+
+        private static IMyCouchClient CreateDbClient(string dbName, CookieContainer cookieC)
         {
             var config = Environment;
             var connectionInfo = new DbConnectionInfo(config.ServerUrl, dbName)
             {
                 BasicAuth = new BasicAuthString(Config.GetUsername(), Config.GetPassword())
             };
+            if (cookieC != null){
+                connectionInfo.CookieContainer = cookieC;
+            }
 
             return new MyCouchClient(connectionInfo, new MyCouchClientBootstrapper
             {

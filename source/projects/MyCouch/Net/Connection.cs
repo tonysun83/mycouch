@@ -15,7 +15,6 @@ namespace MyCouch.Net
         protected bool IsDisposed { get; private set; }
 
         public Uri Address => HttpClient.BaseAddress;
-
         public TimeSpan Timeout => HttpClient.Timeout;
 
         public Action<HttpRequest> BeforeSend { protected get; set; }
@@ -60,9 +59,13 @@ namespace MyCouch.Net
             var handler = new HttpClientHandler
             {
                 AllowAutoRedirect = connectionInfo.AllowAutoRedirect,
-                UseProxy = connectionInfo.UseProxy
+                UseProxy = connectionInfo.UseProxy,
             };
 
+            if (connectionInfo.CookieContainer != null){
+                handler.CookieContainer = connectionInfo.CookieContainer;
+                handler.UseCookies = true;
+            }
             var client = new HttpClient(handler, true)
             {
                 BaseAddress = connectionInfo.Address
@@ -73,11 +76,11 @@ namespace MyCouch.Net
             if (connectionInfo.Timeout.HasValue)
                 client.Timeout = connectionInfo.Timeout.Value;
 
-            if (connectionInfo.BasicAuth != null)
+            // if we have an authentication cookie, don't use basic auth if there are cookies
+            if (connectionInfo.BasicAuth != null && connectionInfo.CookieContainer == null)
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", connectionInfo.BasicAuth.Value);
             }
-
             return client;
         }
 
