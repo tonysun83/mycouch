@@ -47,12 +47,7 @@ namespace IntegrationTests
             return CreateDbClient(Environment.PrimaryDbName, cookieC);
         }
 
-        internal static IMyCouchClient CreateDbClient(string dbName)
-        {
-            return CreateDbClient(dbName, null);
-        }
-
-        private static IMyCouchClient CreateDbClient(string dbName, CookieContainer cookieC)
+        private static IMyCouchClient CreateDbClient(string dbName, CookieContainer cookieC= null)
         {
             var config = Environment;
             var connectionInfo = new DbConnectionInfo(config.ServerUrl, dbName)
